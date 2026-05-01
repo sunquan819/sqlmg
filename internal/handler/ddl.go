@@ -289,7 +289,11 @@ func buildCreateTableSQL(req CreateTableRequest, driverName string) string {
 	var columnDefs []string
 
 	for i, col := range req.Columns {
-		def := fmt.Sprintf("  `%s` %s", col.Name, col.Type)
+		quote := "`"
+		if isSQLite || isPG {
+			quote = `"`
+		}
+		def := fmt.Sprintf("  %s%s%s %s", quote, col.Name, quote, col.Type)
 
 		if col.Length > 0 && !strings.Contains(strings.ToUpper(col.Type), "INT") && !strings.Contains(strings.ToUpper(col.Type), "TEXT") && !strings.Contains(strings.ToUpper(col.Type), "DATE") && !strings.Contains(strings.ToUpper(col.Type), "BOOL") {
 			def += fmt.Sprintf("(%d)", col.Length)
@@ -317,7 +321,7 @@ func buildCreateTableSQL(req CreateTableRequest, driverName string) string {
 			}
 		}
 
-		if col.Comment != "" {
+		if col.Comment != "" && !isSQLite && !isPG {
 			def += fmt.Sprintf(" COMMENT '%s'", col.Comment)
 		}
 
@@ -388,7 +392,7 @@ func buildCreateTableSQL(req CreateTableRequest, driverName string) string {
 	sb.WriteString(strings.Join(columnDefs, "\n"))
 	sb.WriteString("\n)")
 
-	if req.Comment != "" {
+	if req.Comment != "" && !isSQLite && !isPG {
 		sb.WriteString(fmt.Sprintf(" COMMENT='%s'", req.Comment))
 	}
 

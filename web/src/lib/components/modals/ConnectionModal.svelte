@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { connections } from '$lib/stores';
 	import { api, type ConnectionCreate } from '$lib/api/client';
+	import { t } from '$lib/i18n';
 
-	let { connectionId = null, onClose } = $props<{
+	let { connectionId = null, onClose }: {
 		connectionId: string | null;
 		onClose: () => void;
-	}>();
+	} = $props();
 
 	let form = $state<ConnectionCreate>({
 		name: '',
@@ -41,11 +42,11 @@
 		testResult = null;
 		try {
 			const result = await api.connections.create(form);
-			const testResp = await api.connections.test(result.id);
-			testResult = { ok: true, message: 'Connection successful!' };
+			await api.connections.test(result.id);
+			testResult = { ok: true, message: t('connection.success') };
 			await api.connections.delete(result.id);
 		} catch (e: any) {
-			testResult = { ok: false, message: e.message || 'Connection failed' };
+			testResult = { ok: false, message: e.message || t('connection.failed') };
 		} finally {
 			testing = false;
 		}
@@ -72,19 +73,19 @@
 <div class="overlay" onclick={onClose}>
 	<div class="modal" onclick={(e) => e.stopPropagation()}>
 		<div class="modal-header">
-			<h2>{connectionId ? 'Edit Connection' : 'New Connection'}</h2>
+			<h2>{connectionId ? t('connection.edit') : t('connection.new')}</h2>
 			<button class="btn-icon" onclick={onClose}>×</button>
 		</div>
 
 		<div class="modal-body">
 			<div class="form-group">
-				<label>Connection Name</label>
-				<input type="text" bind:value={form.name} placeholder="My Database" />
+				<label for="connName">{t('connection.name')}</label>
+				<input id="connName" type="text" bind:value={form.name} placeholder="My Database" />
 			</div>
 
 			<div class="form-group">
-				<label>Driver</label>
-				<select bind:value={form.driver} onchange={onDriverChange}>
+				<label for="connDriver">{t('connection.driver')}</label>
+				<select id="connDriver" bind:value={form.driver} onchange={onDriverChange}>
 					<option value="mysql">MySQL</option>
 					<option value="postgres">PostgreSQL</option>
 					<option value="sqlite">SQLite</option>
@@ -94,36 +95,36 @@
 			{#if form.driver !== 'sqlite'}
 				<div class="form-row">
 					<div class="form-group">
-						<label>Host</label>
-						<input type="text" bind:value={form.host} />
+						<label for="connHost">{t('connection.host')}</label>
+						<input id="connHost" type="text" bind:value={form.host} />
 					</div>
 					<div class="form-group">
-						<label>Port</label>
-						<input type="number" bind:value={form.port} />
+						<label for="connPort">{t('connection.port')}</label>
+						<input id="connPort" type="number" bind:value={form.port} />
 					</div>
 				</div>
 
 				<div class="form-row">
 					<div class="form-group">
-						<label>Username</label>
-						<input type="text" bind:value={form.username} />
+						<label for="connUser">{t('connection.username')}</label>
+						<input id="connUser" type="text" bind:value={form.username} />
 					</div>
 					<div class="form-group">
-						<label>Password</label>
-						<input type="password" bind:value={form.password} />
+						<label for="connPass">{t('connection.password')}</label>
+						<input id="connPass" type="password" bind:value={form.password} />
 					</div>
 				</div>
 			{:else}
 				<div class="form-group">
-					<label>Database File Path</label>
-					<input type="text" bind:value={form.database} placeholder="/path/to/database.db" />
+					<label for="connPath">{t('connection.databasePath')}</label>
+					<input id="connPath" type="text" bind:value={form.database} placeholder="/path/to/database.db" />
 				</div>
 			{/if}
 
 			{#if form.driver !== 'sqlite'}
 				<div class="form-group">
-					<label>Database</label>
-					<input type="text" bind:value={form.database} placeholder="(optional)" />
+					<label for="connDb">{t('connection.database')}</label>
+					<input id="connDb" type="text" bind:value={form.database} placeholder="(可选)" />
 				</div>
 			{/if}
 
@@ -136,12 +137,12 @@
 
 		<div class="modal-footer">
 			<button class="btn-secondary" onclick={testConnection} disabled={testing}>
-				{testing ? 'Testing...' : 'Test Connection'}
+				{testing ? t('connection.testing') : t('connection.test')}
 			</button>
 			<button class="btn-primary" onclick={save} disabled={saving || !form.name}>
-				{saving ? 'Saving...' : 'Save'}
+				{saving ? t('connection.saving') : t('connection.save')}
 			</button>
-			<button class="btn-secondary" onclick={onClose}>Cancel</button>
+			<button class="btn-secondary" onclick={onClose}>{t('common.cancel')}</button>
 		</div>
 	</div>
 </div>

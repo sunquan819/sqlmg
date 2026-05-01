@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tabs, activeTabId, activeConnectionId, activeDatabase, activeSchema } from '$lib/stores';
 	import { api, type ResultSet } from '$lib/api/client';
+	import { t } from '$lib/i18n';
 	import SQLEditor from '$lib/components/editor/SQLEditor.svelte';
 	import ResultGrid from '$lib/components/datagrid/ResultGrid.svelte';
 	import QueryHistory from '$lib/components/editor/QueryHistory.svelte';
@@ -33,7 +34,7 @@
 
 		const connId = tab.connectionId || $activeConnectionId;
 		if (!connId) {
-			tabErrors[tabId] = 'No connection selected. Please connect to a database first.';
+			tabErrors[tabId] = t('query.noConnection');
 			tabExecuting[tabId] = false;
 			return;
 		}
@@ -140,17 +141,17 @@
 		<div class="welcome">
 			<div class="welcome-content">
 				<div class="welcome-icon">⬡</div>
-				<h1>SQLMG</h1>
-				<p>Database Management System</p>
+				<h1>{t('welcome.title')}</h1>
+				<p>{t('welcome.subtitle')}</p>
 				<div class="welcome-actions">
 					<button class="btn-primary" onclick={() => addQueryTab()}>
-						📝 New Query
+						📝 {t('query.new')}
 					</button>
 				</div>
 				<div class="shortcuts">
-					<div class="shortcut"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Execute current statement</div>
-					<div class="shortcut"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Enter</kbd> Execute all</div>
-					<div class="shortcut"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save to favorites</div>
+					<div class="shortcut"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> {t('welcome.execute')}</div>
+					<div class="shortcut"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Enter</kbd> {t('welcome.executeAll')}</div>
+					<div class="shortcut"><kbd>Ctrl</kbd>+<kbd>S</kbd> {t('welcome.save')}</div>
 				</div>
 			</div>
 		</div>
@@ -195,7 +196,7 @@
 							<div class="result-pane" style="flex: {100 - splitPos}; min-height: 100px;">
 								{#if tabExecuting[activeTab.id]}
 									<div class="result-status executing">
-										<span class="spinner">⟳</span> Executing query...
+										<span class="spinner">⟳</span> {t('query.executing')}
 									</div>
 								{:else if tabErrors[activeTab.id]}
 									<div class="result-status error">
@@ -203,11 +204,11 @@
 									</div>
 								{:else if tabResults[activeTab.id]}
 									<div class="result-status success">
-										✅ {tabResults[activeTab.id].total} rows · {tabResults[activeTab.id].durationMs}ms
+										✅ {tabResults[activeTab.id].total} {t('common.rows')} · {tabResults[activeTab.id].durationMs}ms
 									</div>
 								{:else}
 									<div class="result-status empty">
-										Execute a query to see results
+										{t('query.result.noResult')}
 									</div>
 								{/if}
 

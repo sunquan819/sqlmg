@@ -82,6 +82,14 @@ func (s *Server) registerAPIRoutes() {
 		api.DELETE("/connections/:id/schemas/:schema/tables/:table", ddlHandler.DropTable)
 		api.POST("/connections/:id/schemas/:schema/tables/:table/truncate", ddlHandler.TruncateTable)
 		api.POST("/connections/:id/schemas/:schema/tables/:table/rename", ddlHandler.RenameTable)
+
+		exportHandler := handler.NewExportHandler(s.manager, s.store)
+		api.GET("/connections/:id/schemas/:schema/tables/:table/export", exportHandler.ExportTable)
+		api.POST("/connections/:id/export", exportHandler.ExportQuery)
+
+		importHandler := handler.NewImportHandler(s.manager, s.store)
+		api.POST("/connections/:id/import", importHandler.ImportFile)
+		api.POST("/connections/:id/import/preview", importHandler.PreviewImport)
 	}
 
 	api.GET("/drivers", func(c *gin.Context) {

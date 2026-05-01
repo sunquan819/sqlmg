@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { connections, explorerTree, expandedNodes, sidebarCollapsed } from '$lib/stores';
 	import { api } from '$lib/api/client';
+	import { t } from '$lib/i18n';
 	import TreeNode from './TreeNode.svelte';
 
 	let {
@@ -9,6 +10,8 @@
 		onCreateTable,
 		onDesignTable,
 		onViewDDL,
+		onExport,
+		onImport,
 		onContextMenu
 	}: {
 		onNewConnection: () => void;
@@ -16,6 +19,8 @@
 		onCreateTable: (connId: string, schema: string) => void;
 		onDesignTable: (connId: string, schema: string, tableName: string) => void;
 		onViewDDL: (connId: string, schema: string, tableName: string) => void;
+		onExport: (connId: string, schema: string, tableName: string) => void;
+		onImport: (connId: string, schema: string, tableName: string) => void;
 		onContextMenu: (x: number, y: number, items: any[]) => void;
 	} = $props();
 
@@ -151,9 +156,9 @@
 		const items: any[] = [];
 
 		if (node.type === 'connection' && node.connectionId) {
-			items.push({ label: 'Edit Connection', icon: '✏️', action: () => onEditConnection(node.connectionId) });
-			items.push({ label: 'Delete Connection', icon: '🗑️', action: async () => {
-				if (confirm('Delete this connection?')) {
+			items.push({ label: t('context.editConnection'), icon: '✏️', action: () => onEditConnection(node.connectionId) });
+			items.push({ label: t('context.deleteConnection'), icon: '🗑️', action: async () => {
+				if (confirm(t('connection.deleteConfirm'))) {
 					await api.connections.delete(node.connectionId);
 					loadConnections();
 				}
@@ -161,19 +166,22 @@
 		}
 
 		if (node.type === 'database' && node.connectionId) {
-			items.push({ label: 'New Table', icon: '➕', action: () => onCreateTable(node.connectionId, node.database) });
+			items.push({ label: t('context.newTable'), icon: '➕', action: () => onCreateTable(node.connectionId, node.database) });
 			items.push({ separator: true, label: '' });
-			items.push({ label: 'Refresh', icon: '↻', action: () => { node.loaded = false; loadChildren(node); } });
+			items.push({ label: t('common.refresh'), icon: '↻', action: () => { node.loaded = false; loadChildren(node); } });
 		}
 
 		if (node.type === 'table' && node.connectionId) {
-			items.push({ label: 'Design Table', icon: '🔧', action: () => onDesignTable(node.connectionId, node.schema, node.tableName) });
-			items.push({ label: 'View DDL', icon: '📜', action: () => onViewDDL(node.connectionId, node.schema, node.tableName) });
+			items.push({ label: t('context.designTable'), icon: '🔧', action: () => onDesignTable(node.connectionId, node.schema, node.tableName) });
+			items.push({ label: t('context.viewDDL'), icon: '📜', action: () => onViewDDL(node.connectionId, node.schema, node.tableName) });
 			items.push({ separator: true, label: '' });
-			items.push({ label: 'Refresh', icon: '↻', action: () => { node.loaded = false; loadChildren(node); } });
+			items.push({ label: t('export.title'), icon: '📤', action: () => onExport(node.connectionId, node.schema, node.tableName) });
+			items.push({ label: t('import.title'), icon: '📥', action: () => onImport(node.connectionId, node.schema, node.tableName) });
 			items.push({ separator: true, label: '' });
-			items.push({ label: 'Drop Table', icon: '🗑️', action: async () => {
-				if (confirm(`Drop table "${node.tableName}"? This cannot be undone.`)) {
+			items.push({ label: t('common.refresh'), icon: '↻', action: () => { node.loaded = false; loadChildren(node); } });
+			items.push({ separator: true, label: '' });
+			items.push({ label: t('context.dropTable'), icon: '🗑️', action: async () => {
+				if (confirm(t('context.dropTableConfirm').replace('{name}', node.tableName))) {
 					try {
 						await fetch(`/api/connections/${node.connectionId}/schemas/${node.schema}/tables/${node.tableName}`, { method: 'DELETE' });
 						loadConnections();
@@ -192,10 +200,10 @@
 
 <div class="sidebar" class:collapsed={$sidebarCollapsed}>
 	<div class="sidebar-header">
-		<span class="sidebar-title">Explorer</span>
+		<span class="sidebar-title">{t('explorer.title')}</span>
 		<div class="sidebar-actions">
-			<button class="btn-icon" title="New Connection" onclick={onNewConnection}>⊕</button>
-			<button class="btn-icon" title="Refresh" onclick={loadConnections}>↻</button>
+			<button class="btn-icon" title={t('explorer.newConnection')} onclick={onNewConnection}>⊕</button>
+			<button class="btn-icon" title={t('common.refresh')} onclick={loadConnections}>↻</button>
 			<button class="btn-icon" onclick={() => ($sidebarCollapsed = !$sidebarCollapsed)}>
 				{$sidebarCollapsed ? '▸' : '◂'}
 			</button>
@@ -204,13 +212,13 @@
 
 	{#if !$sidebarCollapsed}
 		<div class="sidebar-search">
-			<input type="text" placeholder="Search objects..." bind:value={searchQuery} />
+			<input type="text" placeholder={t('explorer.search')} bind:value={searchQuery} />
 		</div>
 		<div class="sidebar-tree">
 			{#if $explorerTree.length === 0}
 				<div class="empty-state">
-					<p>No connections yet</p>
-					<button class="btn-primary" onclick={onNewConnection}>New Connection</button>
+					<p>{t('explorer.empty')}</p>
+					<button class="btn-primary" onclick={onNewConnection}>{t('explorer.newConnection')}</button>
 				</div>
 			{:else}
 				{#each $explorerTree as node (node.id)}

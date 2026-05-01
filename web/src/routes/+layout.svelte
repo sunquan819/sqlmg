@@ -7,6 +7,7 @@
 	import ConnectionModal from '$lib/components/modals/ConnectionModal.svelte';
 	import TableDesigner from '$lib/components/modals/TableDesigner.svelte';
 	import DDLViewer from '$lib/components/modals/DDLViewer.svelte';
+	import ImportExportModal from '$lib/components/modals/ImportExportModal.svelte';
 	import ContextMenu from '$lib/components/layout/ContextMenu.svelte';
 
 	let { children } = $props();
@@ -24,6 +25,12 @@
 	let ddlConnectionId = $state('');
 	let ddlSchema = $state('');
 	let ddlTableName = $state('');
+
+	let showImportExport = $state(false);
+	let ieMode = $state<'export' | 'import'>('export');
+	let ieConnectionId = $state('');
+	let ieSchema = $state('');
+	let ieTableName = $state('');
 
 	let contextMenu = $state<{ x: number; y: number; items: any[] } | null>(null);
 
@@ -73,21 +80,32 @@
 		showDDLViewer = false;
 	}
 
+	function openExport(connId: string, schema: string, tableName: string) {
+		ieConnectionId = connId;
+		ieSchema = schema;
+		ieTableName = tableName;
+		ieMode = 'export';
+		showImportExport = true;
+	}
+
+	function openImport(connId: string, schema: string, tableName: string) {
+		ieConnectionId = connId;
+		ieSchema = schema;
+		ieTableName = tableName;
+		ieMode = 'import';
+		showImportExport = true;
+	}
+
+	function closeImportExport() {
+		showImportExport = false;
+	}
+
 	function showContextMenu(x: number, y: number, items: any[]) {
 		contextMenu = { x, y, items };
 	}
 
 	function closeContextMenu() {
 		contextMenu = null;
-	}
-
-	export function getActions() {
-		return {
-			openCreateTable,
-			openDesignTable,
-			openDDLViewer,
-			showContextMenu
-		};
 	}
 </script>
 
@@ -100,6 +118,8 @@
 			onCreateTable={openCreateTable}
 			onDesignTable={openDesignTable}
 			onViewDDL={openDDLViewer}
+			onExport={openExport}
+			onImport={openImport}
 			onContextMenu={showContextMenu}
 		/>
 		<WorkArea />
@@ -131,6 +151,16 @@
 		schema={ddlSchema}
 		tableName={ddlTableName}
 		onClose={closeDDLViewer}
+	/>
+{/if}
+
+{#if showImportExport}
+	<ImportExportModal
+		mode={ieMode}
+		connectionId={ieConnectionId}
+		schema={ieSchema}
+		tableName={ieTableName}
+		onClose={closeImportExport}
 	/>
 {/if}
 

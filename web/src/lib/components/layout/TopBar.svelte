@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { tabs, activeTabId, settings } from '$lib/stores';
+	import { settings } from '$lib/stores';
+	import { t, switchLang, getLang } from '$lib/i18n';
 
 	let { onNewConnection } = $props();
+	let currentLang = $state(getLang());
 
-	let theme = $derived($settings.theme);
+	function handleSwitchLang() {
+		currentLang = switchLang();
+	}
 </script>
 
 <header class="topbar">
@@ -15,11 +19,14 @@
 	</div>
 	<div class="topbar-center">
 		<button class="topbar-btn" onclick={onNewConnection}>
-			<span class="icon">⊕</span> New Connection
+			<span class="icon">⊕</span> {t('explorer.newConnection')}
 		</button>
 	</div>
 	<div class="topbar-right">
-		<button class="btn-icon" title="Settings">⚙</button>
+		<button class="btn-icon" title="语言/Language" onclick={handleSwitchLang}>
+			{currentLang === 'zh' ? '中' : 'EN'}
+		</button>
+		<button class="btn-icon" title={t('common.refresh')}>⚙</button>
 	</div>
 </header>
 
