@@ -7,6 +7,7 @@
 	import ConnectionModal from '$lib/components/modals/ConnectionModal.svelte';
 	import TableDesigner from '$lib/components/modals/TableDesigner.svelte';
 	import DDLViewer from '$lib/components/modals/DDLViewer.svelte';
+	import ERDiagram from '$lib/components/modals/ERDiagram.svelte';
 	import ImportExportModal from '$lib/components/modals/ImportExportModal.svelte';
 	import ContextMenu from '$lib/components/layout/ContextMenu.svelte';
 
@@ -25,6 +26,10 @@
 	let ddlConnectionId = $state('');
 	let ddlSchema = $state('');
 	let ddlTableName = $state('');
+
+	let showERDiagram = $state(false);
+	let erConnectionId = $state('');
+	let erSchema = $state('');
 
 	let showImportExport = $state(false);
 	let ieMode = $state<'export' | 'import'>('export');
@@ -80,6 +85,16 @@
 		showDDLViewer = false;
 	}
 
+	function openERDiagram(connId: string, schema: string) {
+		erConnectionId = connId;
+		erSchema = schema;
+		showERDiagram = true;
+	}
+
+	function closeERDiagram() {
+		showERDiagram = false;
+	}
+
 	function openExport(connId: string, schema: string, tableName: string) {
 		ieConnectionId = connId;
 		ieSchema = schema;
@@ -118,6 +133,7 @@
 			onCreateTable={openCreateTable}
 			onDesignTable={openDesignTable}
 			onViewDDL={openDDLViewer}
+			onERDiagram={openERDiagram}
 			onExport={openExport}
 			onImport={openImport}
 			onContextMenu={showContextMenu}
@@ -151,6 +167,14 @@
 		schema={ddlSchema}
 		tableName={ddlTableName}
 		onClose={closeDDLViewer}
+	/>
+{/if}
+
+{#if showERDiagram}
+	<ERDiagram
+		connectionId={erConnectionId}
+		schema={erSchema}
+		onClose={closeERDiagram}
 	/>
 {/if}
 

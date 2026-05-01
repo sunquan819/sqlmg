@@ -90,6 +90,10 @@ func (s *Server) registerAPIRoutes() {
 		importHandler := handler.NewImportHandler(s.manager, s.store)
 		api.POST("/connections/:id/import", importHandler.ImportFile)
 		api.POST("/connections/:id/import/preview", importHandler.PreviewImport)
+
+		erHandler := handler.NewERHandler(s.manager, s.store)
+		api.GET("/connections/:id/schemas/:schema/er", erHandler.GetERGraph)
+		api.GET("/connections/:id/schemas/:schema/tables/:table/relations", erHandler.GetTableRelations)
 	}
 
 	api.GET("/drivers", func(c *gin.Context) {

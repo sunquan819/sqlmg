@@ -10,6 +10,7 @@
 		onCreateTable,
 		onDesignTable,
 		onViewDDL,
+		onERDiagram,
 		onExport,
 		onImport,
 		onContextMenu
@@ -19,6 +20,7 @@
 		onCreateTable: (connId: string, schema: string) => void;
 		onDesignTable: (connId: string, schema: string, tableName: string) => void;
 		onViewDDL: (connId: string, schema: string, tableName: string) => void;
+		onERDiagram: (connId: string, schema: string) => void;
 		onExport: (connId: string, schema: string, tableName: string) => void;
 		onImport: (connId: string, schema: string, tableName: string) => void;
 		onContextMenu: (x: number, y: number, items: any[]) => void;
@@ -167,6 +169,7 @@
 
 		if (node.type === 'database' && node.connectionId) {
 			items.push({ label: t('context.newTable'), icon: '➕', action: () => onCreateTable(node.connectionId, node.database) });
+			items.push({ label: t('er.title'), icon: '📊', action: () => onERDiagram(node.connectionId, node.database) });
 			items.push({ separator: true, label: '' });
 			items.push({ label: t('common.refresh'), icon: '↻', action: () => { node.loaded = false; loadChildren(node); } });
 		}

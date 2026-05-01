@@ -80,6 +80,11 @@ const translations: Record<Lang, Record<string, string>> = {
 		'ddl.loading': '加载DDL...',
 		'ddl.close': '关闭',
 
+		'er.title': 'ER 图',
+		'er.exportImage': '导出图片',
+		'er.noTables': '没有表',
+		'er.reset': '重置',
+
 		'context.designTable': '设计表',
 		'context.viewDDL': '查看DDL',
 		'context.newTable': '新建表',
@@ -222,6 +227,11 @@ const translations: Record<Lang, Record<string, string>> = {
 		'ddl.copied': 'Copied!',
 		'ddl.loading': 'Loading DDL...',
 		'ddl.close': 'Close',
+
+		'er.title': 'ER Diagram',
+		'er.exportImage': 'Export Image',
+		'er.noTables': 'No tables found',
+		'er.reset': 'Reset',
 
 		'context.designTable': 'Design Table',
 		'context.viewDDL': 'View DDL',
